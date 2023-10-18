@@ -11,7 +11,8 @@ from transformers import AutoTokenizer, pipeline, logging
 from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
 import argparse
 
-openai.api_key = "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"
+#Replace by the ChatGPT API key
+openai.api_key = ""
 
 def balance_c_code(input_code):
     opening_braces = 0
