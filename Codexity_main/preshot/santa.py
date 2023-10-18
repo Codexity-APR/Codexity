@@ -3,7 +3,9 @@ import openai
 from cppcheck_test import*
 import re
 from infer_test import*
-openai.api_key = "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"
+
+#Replace by the ChatGPT API key
+openai.api_key = ""
 
 def balance_c_code(input_code):
     opening_braces = 0
