@@ -1,8 +1,8 @@
 import os
 import openai
 
-#If possible, it's better to use your own personnal key. This one will expire soon.
-openai.api_key = "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"
+#Replace by the ChatGPT API key
+openai.api_key = ""
 
 def extract_substring(s, start_str, end_str):
     """
