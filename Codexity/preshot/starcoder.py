@@ -127,7 +127,7 @@ for root, dirs, files in os.walk(script_dir+"/scenario"):
             text = "Complete the code:\n"+text2
 
             inputs = tokenizer.encode(text, return_tensors="pt").to(device)
-            outputs = model.generate(inputs=inputs,do_sample=True,temperature=0.1,max_new_tokens=300)
+            outputs = model.generate(inputs=inputs,do_sample=True,temperature=0.1,top_k=50,top_p=0.95,max_new_tokens=300)
             code = extract_substring(tokenizer.decode(outputs[0]),"#include","}")
 
             

@@ -1,8 +1,10 @@
 import os
 import openai
 from cppcheck_test import*
-import re
 from infer_test import*
+from transformers import AutoTokenizer, pipeline, logging
+from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import argparse
 
 #Replace by the ChatGPT API key
 openai.api_key = ""
@@ -53,6 +55,8 @@ def generation(prompt, llm_code, vuln_list):
         return code
 
 
+
+
 def generation2(prompt, gpt_msg, user_prompt):
     prompt2 = "Complete this code \n"+prompt
     response = openai.ChatCompletion.create(
@@ -68,8 +72,10 @@ def generation2(prompt, gpt_msg, user_prompt):
     ]
      )
 
+    #print(response)
     if 'choices' in response:
         x = response['choices']
+        #print( x[0]['message']['content'])
         answer = x[0]['message']['content']
         code= extract_substring(answer,"#include","}")
         return code
@@ -85,6 +91,23 @@ def extract_substring(s, start_str, end_str):
     return s[start_index-8:end_index+1]
 
 
+
+
+
+device="cuda:0"
+# Or to load it locally, pass the local download path
+model_name_or_path = "TheBloke/starcoderplus-GPTQ"
+
+use_triton = False
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
+
+model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
+        use_safetensors=True,
+        trust_remote_code=True,
+        device="cuda:0",
+        use_triton=use_triton,
+        quantize_config=None)
     
 
 generation_type=0
@@ -92,6 +115,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 for root, dirs, files in os.walk(script_dir+"/scenario"):
     for file_name in files:
+
         if file_name != ".DS_Store":
             file_path = os.path.join(root, file_name)
             input = open(script_dir+"/scenario/"+file_name, "r",encoding='utf-8')
@@ -100,27 +124,23 @@ for root, dirs, files in os.walk(script_dir+"/scenario"):
             total_lines = len(line)
             copy_lines = int(total_lines * 1)
             text2 = "".join(line[:copy_lines])
-            text = "'"+text2+"'"
 
-            create_command =  script_dir+"/starcoder.cpp/main -m "+ script_dir+ "/starcoder.cpp/models/bigcode/gpt_bigcode-santacoder-ggml-q4_1.bin -p " +text+" --top_k 0 --top_p 0.95 --temp 0.1 -n 600 > "+script_dir+"/result/star_"+file_name
-            print("Generation using local LLM")
-            os.system(create_command)
+            text = "Complete the code:\n"+text2
+
+            inputs = tokenizer.encode(text, return_tensors="pt").to(device)
+            outputs = model.generate(inputs=inputs,do_sample=True,temperature=0.1,top_k=50,top_p=0.95,max_new_tokens=300)
+            code = extract_substring(tokenizer.decode(outputs[0]),"#include","}")
+
             
-            input = open(script_dir+"/result/star_"+file_name, "r",encoding='utf-8')
-            line = input.readlines()
+    
+ 
+
+            input = open(script_dir+"/result/star_"+file_name, "w",encoding='utf-8')
+            input.write(code)
             input.close()
-            code = "".join(line[:-1])
-            pattern = r"main: number of tokens in prompt =.*?\n\n(.*?)\n\nmain: mem per token"
-            match = re.search(pattern, code, re.DOTALL)
-            if match:
-                extracted_string = match.group(1)
-                input = open(script_dir+"/result/star_"+file_name, "w",encoding='utf-8')
-                extracted_string= extract_substring(extracted_string,"#include","}")
-                input.write(extracted_string)
-                input.close()
-            else:
-                break
-            
+
+  
+
             create_command = "touch "+script_dir+ "/result/cppcheck.xml"
             os.system(create_command)
             create_command = "cppcheck --xml-version=2 --enable=warning "+script_dir+"/result/"+ "star_"+file_name+" 2>"+script_dir+ "/result/cppcheck.xml"
@@ -153,26 +173,33 @@ for root, dirs, files in os.walk(script_dir+"/scenario"):
                 
             try:
                 infer_list = final_infer(script_dir+"/result/"+'infer-out/report.txt')
+
             except Exception as e:
                 print(e)
+
                 infer_list = []
 
             if len(infer_list) !=0 :
+
                 for s in range(0,len(infer_list)):
                     if infer_list[s][0][0] =="Dead Store" or infer_list[s][0][0] =="Uninitialized Value":
+
                         print("")
                     else:
+
                         infer_building=[]
+                        
+
                         if infer_list[s][0][0] != None:
                             none_style_list.insert(0, [ infer_list[s][0][0],  infer_list[s][0][1] , infer_list[s][1] , "infer"] )
-                            #print("insert done")
+                            print("insert done")
                             activate_cpp_check_prompt=1
                             counter_flawfinder = 0
                             CWE = infer_list[s][0]
                 
             if len(none_style_list) == 0:
                 generation_type=1
-
+   
                 
             criticavuln = "List of vulnerabilities detected: \n"
             '''
@@ -194,16 +221,7 @@ for root, dirs, files in os.walk(script_dir+"/scenario"):
             comment_error = criticavuln+"\n"
             print(comment_error)
             
-            input = open(script_dir+"/"+"result/star_"+file_name, "r",encoding='utf-8')
-            line = input.readlines()
-            input.close()
-            code = "".join(line[:-1])
-            pattern = r"main: number of tokens in prompt =.*?\n\n(.*?)\n\nmain: mem per token"
-            match = re.search(pattern, code, re.DOTALL)
-            if match:
-                extracted_string = match.group(1)
-                extracted_string= extract_substring(extracted_string,"#include","}")
-                extracted_string = balance_c_code(extracted_string)
+            extracted_string = code
             if generation_type == 0:
                 print("Generation using ChatGPT")
                 answer = generation(text2, extracted_string, comment_error)
