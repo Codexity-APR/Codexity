@@ -5,16 +5,14 @@ import time
 from infer_test import*
 from cppcheck_test import*
 
-def main(vuln_code,scenario_length):
+def main(vuln_code):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     origin_scenario =vuln_code[:-1]
 
 
-    #Initialize differents times
-    generation_time =0
-    detection_time=0
+
     #Number of round we want, the program ends after that
-    MAX_ROUND = 5
+    MAX_ROUND = 4
 
     #Temperature value, between 0 and 1
     temperature = [0]
@@ -77,7 +75,7 @@ def main(vuln_code,scenario_length):
     #Main loop
     for i in range(0,MAX_ROUND):
 
-        #This condition checks if the files are emptpy meaning that the codes are all non-vuln or all uncompilable
+        #This condition checks if the files are emptpy meaning that the codes are all non-vuln
         if len(break_counter ) == len(temperature):
             break
 
@@ -97,12 +95,12 @@ def main(vuln_code,scenario_length):
                     #We generate the code for temperature 0
                     print("First Generation of code")
                     answer = generation2(text)
-                    #time.sleep(2)
+    
                     gen="gen"+str( int( (t%1) *10) )
                     round = "round"+str(i)
                     codename="0."+type
                     path = filename+"/"+round+"/"+gen+"/"+codename
-                    #answer = generation(text)
+
                     f = open(path, "w")
                     f.write(answer)
                     f.close()
@@ -113,7 +111,7 @@ def main(vuln_code,scenario_length):
         #Here, it's the same but with round different from 0
         else :
             #We measure the time it takes for generating a code
-            generation_time = generation_time - time.time()
+
             for t in temperature:
                 scen_pred="scenario"+str( int( (t%1) *10))
                 gen="gen"+str( int( (t%1) *10) )
@@ -147,11 +145,11 @@ def main(vuln_code,scenario_length):
                             f.write(text)
                             f.close()
                             re_genereate = 0
-            generation_time = generation_time +time.time()
 
-        #This part is the flawfinder part
-        
-        detection_time = detection_time - time.time()
+
+
+        #This part is for the detection and repair
+
         for t in temperature:
             gen="gen"+str( int( (t%1) *10) )
             round = "round"+str(i)
@@ -287,7 +285,7 @@ def main(vuln_code,scenario_length):
 
                     break_counter.append(gen)
                     break_counter = list(dict.fromkeys(break_counter))
-        detection_time = detection_time + time.time()
+
 
     end_time = time.time()
 
@@ -295,16 +293,13 @@ def main(vuln_code,scenario_length):
     f = open(filename+"/result.txt", "w")
     f.write("time for the whole process : ")
     f.write(str(end_time-start_time)+"\n")
-    f.write("time for the generations : ")
-    f.write(str(generation_time)+"\n")
-    f.write("time for the detections and repairs : ")
-    f.write(str(detection_time)+"\n")
+
 
 
     f.close()
     f = open(filename+"/python_script_completed.txt", "w")
     f.close()
-    return end_time-start_time, generation_time, detection_time
+    return end_time-start_time
     
 
 total_time_all =[]
@@ -319,16 +314,9 @@ def mean(list):
 script_dir = os.path.dirname(os.path.abspath(__file__))
 for vuln_code in os.listdir(script_dir+"/scenario"):
     if vuln_code[len(vuln_code)-1] == "c":
-        #we manually insert the lenght of the scenario
-        #tt = total time
-        #gt = generation time
-        #dt = detection time
-        #cc = codeql counter
-        tt, gt, dt= main(vuln_code, 12)
+        tt= main(vuln_code)
         total_time_all.append(tt)
-        
-print("total time:")
-print(mean(total_time_all))
+
 
 
 

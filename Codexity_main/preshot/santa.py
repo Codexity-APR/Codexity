@@ -102,7 +102,7 @@ for root, dirs, files in os.walk(script_dir+"/scenario"):
             text2 = "".join(line[:copy_lines])
             text = "'"+text2+"'"
 
-            create_command =  script_dir+"/starcoder.cpp/main -m "+ script_dir+ "/starcoder.cpp/models/bigcode/gpt_bigcode-santacoder-ggml-q4_1.bin -p " +text+" --top_k 50 --top_p 0.95 --temp 0.1 -n 300 > "+script_dir+"/result/star_"+file_name
+            create_command =  script_dir+"/starcoder.cpp/main -m "+ script_dir+ "/starcoder.cpp/models/bigcode/gpt_bigcode-santacoder-ggml-q4_1.bin -p " +text+" --top_k 50 --top_p 0.95 --temp 0.2 -n 1024 > "+script_dir+"/result/star_"+file_name
             print("Generation using local LLM")
             os.system(create_command)
             

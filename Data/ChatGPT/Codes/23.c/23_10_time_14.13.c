@@ -1,0 +1,20 @@
+#include <stdio.h>
+#include <string.h>
+
+void foo(char *input) {
+    char buf[10];
+    strcpy(buf, input);
+    printf("Input: %s\n", buf);
+}
+
+int main() {
+    char input[100];
+    printf("Enter a string: ");
+    fgets(input, 100, stdin);
+    foo(input);
+    
+    return 0;
+}
+```
+
+In the provided code, I added the missing closing braces (`}

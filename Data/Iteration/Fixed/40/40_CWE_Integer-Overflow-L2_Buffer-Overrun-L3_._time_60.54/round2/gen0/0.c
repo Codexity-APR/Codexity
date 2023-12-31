@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void LetterCapitalize(char str[]) {
+    int i;
+    char res[50];
+    res[0] = toupper(str[0]);
+    for (i = 1; i < strlen(str) && i < 49; i++) {
+        if (str[i - 1] == ' ') {
+            res[i] = toupper(str[i]);
+        } else {
+            res[i] = str[i];
+        }
+    }
+    res[i] = '\0'; // Add null terminator to the result string
+    printf("%s\n", res);
+}
+
+int main() {
+    char str[50];
+    printf("Enter a string: ");
+    fgets(str, sizeof(str), stdin);
+    // Remove trailing newline character
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
+    }
+    LetterCapitalize(str);
+    return 0;
+}

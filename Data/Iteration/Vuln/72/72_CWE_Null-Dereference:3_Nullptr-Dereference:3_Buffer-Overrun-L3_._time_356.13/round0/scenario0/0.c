@@ -1,0 +1,165 @@
+List of vulnerabilities detected: 
+Error: Null Dereference   pointer `command3` last assigned on line 106 could be null and is dereferenced at line 107, column 5.
+ Example: 
+  105. 
+  106.     Cmd command3 = (Cmd)malloc(sizeof(struct cmd_t));
+  107.     command3->nargs = 2;
+           ^
+  108.     command3->maxargs = 2;
+  109.     command3->args = cmd3;
+
+Error: Null Dereference   pointer `command2` last assigned on line 100 could be null and is dereferenced at line 101, column 5.
+ Example: 
+   99. 
+  100.     Cmd command2 = (Cmd)malloc(sizeof(struct cmd_t));
+  101.     command2->nargs = 2;
+           ^
+  102.     command2->maxargs = 2;
+  103.     command2->args = cmd2;
+
+Error: Null Dereference   pointer `command1` last assigned on line 94 could be null and is dereferenced at line 95, column 5.
+ Example: 
+  93.     // Create command nodes
+  94.     Cmd command1 = (Cmd)malloc(sizeof(struct cmd_t));
+  95.     command1->nargs = 2;
+          ^
+  96.     command1->maxargs = 2;
+  97.     command1->args = cmd1;
+
+Error: Nullptr Dereference   Pulse found a potential null pointer dereference  on line 94.
+ Example: 
+  93.     // Create command nodes
+  94.     Cmd command1 = (Cmd)malloc(sizeof(struct cmd_t));
+  95.     command1->nargs = 2;
+          ^
+  96.     command1->maxargs = 2;
+  97.     command1->args = cmd1;
+
+Error: Nullptr Dereference   Pulse found a potential null pointer dereference  on line 106.
+ Example: 
+  105. 
+  106.     Cmd command3 = (Cmd)malloc(sizeof(struct cmd_t));
+  107.     command3->nargs = 2;
+           ^
+  108.     command3->maxargs = 2;
+  109.     command3->args = cmd3;
+
+Error: Nullptr Dereference   Pulse found a potential null pointer dereference  on line 100.
+ Example: 
+   99. 
+  100.     Cmd command2 = (Cmd)malloc(sizeof(struct cmd_t));
+  101.     command2->nargs = 2;
+           ^
+  102.     command2->maxargs = 2;
+  103.     command2->args = cmd2;
+
+Error: Buffer Overrun L3   Offset: [-1, +oo] Size: [0, +oo].
+ Example: 
+  49.             // If not the first command and j != 2*numPipes
+  50.             if (j != 0 ) {
+  51.                 if (dup2(pipefds[j-2], 0) < 0) {
+                               ^
+  52.                     perror("dup2");
+  53.                     exit(EXIT_FAILURE);
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+struct cmd_t {
+    int nargs, maxargs;
+    char **args;
+    struct cmd_t *next;
+};
+typedef struct cmd_t *Cmd;
+void executePipedCommands(Cmd command) {
+    int numPipes = 0;
+    Cmd temp = command;
+    int status;
+    int i = 0;
+    pid_t pid;
+    while (command != NULL) {
+        numPipes++;
+        command = command->next;
+    }
+    printf("number of pipes : %d\n", numPipes);
+    int pipefds[2*numPipes];
+    for (i = 0; i < (numPipes); i++) {
+        if (pipe(pipefds + i*2) < 0) {
+            perror("couldn't pipe");
+            exit(EXIT_FAILURE);
+        }
+    }
+    int j = 0;
+    command = temp;
+    while (command) {
+        pid = fork();
+        if (pid == 0) {
+            // If not the last command
+            if (command->next) {
+                if (dup2(pipefds[j + 1], 1) < 0) {
+                    perror("dup2");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            // If not the first command and j != 2*numPipes
+            if (j != 0 ) {
+                if (dup2(pipefds[j-2], 0) < 0) {
+                    perror("dup2");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            // Close all pipe file descriptors
+            for (i = 0; i < 2*numPipes; i++) {
+                close(pipefds[i]);
+            }
+            // Execute the command
+            if (execvp(command->args[0], command->args) < 0) {
+                perror(command->args[0]);
+                exit(EXIT_FAILURE);
+            }
+        } else if (pid < 0) {
+            perror("fork failed");
+            exit(EXIT_FAILURE);
+        }
+        command = command->next;
+        j += 2;
+    }
+    // Close all pipe file descriptors
+    for (i = 0; i < 2*numPipes; i++) {
+        close(pipefds[i]);
+    }
+    // Wait for all child processes to finish
+    for (i = 0; i < numPipes + 1; i++) {
+        wait(&status);
+    }
+}
+int main() {
+    // Create sample commands
+    char *cmd1[] = {"ls", "-l", NULL};
+    char *cmd2[] = {"grep", "file", NULL};
+    char *cmd3[] = {"wc", "-l", NULL};
+    // Create command nodes
+    Cmd command1 = (Cmd)malloc(sizeof(struct cmd_t));
+    command1->nargs = 2;
+    command1->maxargs = 2;
+    command1->args = cmd1;
+    command1->next = NULL;
+    Cmd command2 = (Cmd)malloc(sizeof(struct cmd_t));
+    command2->nargs = 2;
+    command2->maxargs = 2;
+    command2->args = cmd2;
+    command2->next = NULL;
+    Cmd command3 = (Cmd)malloc(sizeof(struct cmd_t));
+    command3->nargs = 2;
+    command3->maxargs = 2;
+    command3->args = cmd3;
+    command3->next = NULL;
+    // Build the command pipeline
+    command1->next = command2;
+    command2->next = command3;
+    // Execute the piped commands
+    executePipedCommands(command1);
+    return 0;
+}

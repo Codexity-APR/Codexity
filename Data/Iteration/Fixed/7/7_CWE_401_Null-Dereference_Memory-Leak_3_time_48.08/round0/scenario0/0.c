@@ -1,0 +1,44 @@
+List of vulnerabilities detected: 
+Error: Null Dereference   pointer `dir` last assigned on line 6 could be null and is dereferenced by call to `strcpy()` at line 14, column 9.
+ Example: 
+  12.     }
+  13.     else {
+  14.         strcpy(dir, argv[1]);
+              ^
+  15.         printf("Directory: %s\n", dir);
+  16.         return dir;
+
+Error: Memory Leak   Pulse found a potential memory leak. Memory dynamically allocated at line 6 by call to `malloc`, is not freed after the last access at line 9, column 9.
+ Example: 
+   7.     printf("Number of arguments: %d\n", argc);
+   8. 
+   9.     if (argc < 2) {
+              ^
+  10.        printf("No argument specified\n");
+  11.        return NULL;
+
+ Error type: CWE-401 at line: 11. Error message: Memory leak: dir
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+char* handle_input(int argc, char *argv[]) {
+    char* dir = malloc(200);
+    printf("Number of arguments: %d\n", argc);
+    if (argc < 2) {
+       printf("No argument specified\n");
+       return NULL;
+    }
+    else {
+        strcpy(dir, argv[1]);
+        printf("Directory: %s\n", dir);
+        return dir;
+    }
+}
+int main(int argc, char *argv[]) {
+    char* directory = handle_input(argc, argv);
+    // Rest of the code
+    free(directory);
+    return 0;
+}

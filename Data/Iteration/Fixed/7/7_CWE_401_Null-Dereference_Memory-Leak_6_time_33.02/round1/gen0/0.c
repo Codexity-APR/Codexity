@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+char* handle_input(int argc, char *argv[]) {
+    char* dir = NULL;
+    printf("Number of arguments: %d\n", argc);
+    if (argc < 2) {
+        printf("No argument specified\n");
+        return NULL;
+    }
+    dir = malloc(strlen(argv[1]) + 1);
+    if (dir != NULL) {
+        strcpy(dir, argv[1]);
+    }
+    return dir;
+}
+
+int main(int argc, char *argv[]) {
+    char* directory = handle_input(argc, argv);
+    if (directory != NULL) {
+        printf("Argument specified: %s\n", directory);
+        free(directory);
+    }
+    return 0;
+}

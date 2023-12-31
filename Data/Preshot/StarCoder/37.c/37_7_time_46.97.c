@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX_WORDS 2500
+
+int main(int argc, char *argv[])
+{
+    int wordCount = 0;
+    int distinctCount = 0;
+    char words[MAX_WORDS][50];
+    int count[MAX_WORDS] = {0};
+    int maxCount = 0;
+    char mostFreqWord[50] = "";
+    char *p;
+    FILE *fp;
+    fp = fopen("COEN12_LAB1.txt", "r");
+    if (fp == NULL) {
+        printf("File Missing!\n");
+        return 1;
+    }
+    
+    while (wordCount < MAX_WORDS && fscanf(fp, "%49s", words[wordCount]) == 1) {
+        wordCount++;
+    }
+    fclose(fp);
+    
+    for (int i = 0; i < wordCount; i++) {
+        int isDistinct = 1;
+        for (int j = 0; j < i; j++) {
+            if (strcmp(words[i], words[j]) == 0) {
+                isDistinct = 0;
+                break;
+            }
+        }
+        if (isDistinct) {
+            distinctCount++;
+        }
+        
+        for (int j = 0; j < wordCount; j++) {
+            if (strcmp(words[i], words[j]) == 0) {
+                count[i]++;
+            }
+        }
+        
+        if (count[i] > maxCount) {
+            maxCount = count[i];
+            strcpy(mostFreqWord, words[i]);
+        }
+    }
+    
+    printf("The number of distinct words is %d\n", distinctCount);
+    printf("The most frequently used word is %s\n", mostFreqWord);
+    printf("The number of times the word %s is used is %d\n", mostFreqWord, maxCount);
+
+    return 0;
+}
