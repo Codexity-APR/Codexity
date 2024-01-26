@@ -17,39 +17,9 @@ function activate(context) {
 		vscode.window.showErrorMessage('No active text editor.');
 		return;
 	}
-     /*
-	const savedFolderPath = context.globalState.get('selectedFolderPath');
-	const modifyPath = await vscode.window.showQuickPick(
-		['Yes', 'No'],
-		{
-			placeHolder: savedFolderPath
-				? `Modify the saved path?\nCurrent Path: ${savedFolderPath}`
-				: 'Select a path for the first time',
-		}
-	);
+     
 
-	let selectedFolderPath = savedFolderPath;
-
-	if (modifyPath === 'Yes') {
-		const folderUri = await vscode.window.showOpenDialog({
-			canSelectFiles: false,
-			canSelectFolders: true,
-			canSelectMany: false,
-			openLabel: 'Select Folder',
-			defaultUri: savedFolderPath ? vscode.Uri.file(savedFolderPath) : undefined,
-		});
-
-		if (!folderUri || folderUri.length === 0) {
-			vscode.window.showErrorMessage('Folder not selected.');
-			return;
-		}
-
-		selectedFolderPath = folderUri[0].fsPath;
-		context.globalState.update('selectedFolderPath', selectedFolderPath);
-	}
-    */
-
-    let selectedFolderPath = "/Codexity_main";
+    let selectedFolderPath = "path/to/Codexity_main";
 	const selectedCode = activeTextEditor.document.getText(activeTextEditor.selection);
 	const selection = activeTextEditor.selection;
 
