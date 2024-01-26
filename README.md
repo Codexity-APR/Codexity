@@ -35,7 +35,9 @@ An Openai key is necessary to run the programs. The key must be placed in the fi
 
 A simple example of how to use the VS Code extension is shown in this video: https://youtu.be/3Lh8qQN9nhY
 
-The user needs to first launch the extension. For that, the user needs to open the extenson.js file and press F5. This will launch the extension. Then, the user can select the project he/she is working on. To complete a code, the code snippet has to be highlighted. After launching Codexity, the user can select between the two mechanisms (iteration or preshot repair). The extension will then complete the code.
+The user needs to first launch the extension. For that, the user needs to open the extenson.js file and press F5. This will launch the extension. Then, the user can select the project he/she is working on. Because the extension works with the Codexity_main folder, the path to this folder must be indicated in the extension.js file at the variable 'selectedFolderPath'.
+
+To complete a code, the code snippet has to be highlighted. After launching Codexity, the user can select between the two mechanisms (iteration or preshot repair). The extension will then complete the code.
 
  
 ## Dataset
