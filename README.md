@@ -9,6 +9,7 @@ The requirements for the python program are listed in requirement.txt. If the on
 Two SAST tools are required for the extension to work: Infer, CppCheck. It is easy to install (usually just one command line depending on the OS).
 
 For Infer:https://fbinfer.com/docs/next/getting-started
+
 For CppCheck: https://cppcheck.sourceforge.io/
 
 The extension works for CppCheck 2.9 (and above if the output format is the same) and Infer 1.1.0.
@@ -24,7 +25,7 @@ The folder codexity contains the extension files. The folder Codexity_main conta
 
 The preshot repair works with three models: SantaCoder and StarCoder. The installation of SantaCoder must follow the instructions of https://github.com/bigcode-project/starcoder.cpp. The starcoder.cpp folder must be placed at Codexity_main/Preshot. The SantaCoder model should be at  Codexity_main/Preshot/starcoder.cpp/models/bigcode as precised in the relevant GitHub explanation.
 
-For StarCoder, the default path is set to the respective HugginFace repositories. The path to the model can be modified in their respective Python files.
+For StarCoder, the default path is set to the respective HugginFace repositories. The path to the model can be modified in their respective Python files: Codexity_main/Iteration/gen.py and Codexity_main/preshot/santa.py (starcoder.py)
 
 ## Openai API key
 
