@@ -145,7 +145,7 @@ function activate(context) {
 			pythonScriptName = '/santa.py';
 		} else if (executionType === 'GPU') {
 			// If GPU is selected, ask the user to choose one of three scripts
-			const selectedScript = await vscode.window.showQuickPick(['wizard.py', 'starcoder.py', 'starcoderplus.py'], {
+			const selectedScript = await vscode.window.showQuickPick(['starcoder.py'], {
 				placeHolder: 'Choose a Python script to execute:',
 			});
 	
