@@ -17,7 +17,7 @@ function activate(context) {
 		vscode.window.showErrorMessage('No active text editor.');
 		return;
 	}
-
+     /*
 	const savedFolderPath = context.globalState.get('selectedFolderPath');
 	const modifyPath = await vscode.window.showQuickPick(
 		['Yes', 'No'],
@@ -47,7 +47,9 @@ function activate(context) {
 		selectedFolderPath = folderUri[0].fsPath;
 		context.globalState.update('selectedFolderPath', selectedFolderPath);
 	}
+    */
 
+    let selectedFolderPath = "/Codexity_main";
 	const selectedCode = activeTextEditor.document.getText(activeTextEditor.selection);
 	const selection = activeTextEditor.selection;
 
@@ -145,7 +147,7 @@ function activate(context) {
 			pythonScriptName = '/santa.py';
 		} else if (executionType === 'GPU') {
 			// If GPU is selected, ask the user to choose one of three scripts
-			const selectedScript = await vscode.window.showQuickPick(['wizard.py', 'starcoder.py', 'starcoderplus.py'], {
+			const selectedScript = await vscode.window.showQuickPick(['starcoder.py'], {
 				placeHolder: 'Choose a Python script to execute:',
 			});
 	
