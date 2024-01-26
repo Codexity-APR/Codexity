@@ -9,6 +9,7 @@ The requirements for the python program are listed in requirement.txt. If the on
 Two SAST tools are required for the extension to work: Infer, CppCheck. It is easy to install (usually just one command line depending on the OS).
 
 For Infer:https://fbinfer.com/docs/next/getting-started
+
 For CppCheck: https://cppcheck.sourceforge.io/
 
 The extension works for CppCheck 2.9 (and above if the output format is the same) and Infer 1.1.0.
